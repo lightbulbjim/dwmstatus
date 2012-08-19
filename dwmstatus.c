@@ -172,7 +172,7 @@ main(void)
 	for (;;sleep(1)) {
 		avgs = loadavg();
 		bat = getbattery("/proc/acpi/battery/C23D");
-		tmlon = mktimes("%a %b %e %T", tzlondon);
+		tmlon = mktimes("%a %b %e %H:%M:%S", tzlondon);
 
 		status = smprintf("%s | %s | %s",
 				tmlon, bat, avgs);
