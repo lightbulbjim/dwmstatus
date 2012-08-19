@@ -95,10 +95,11 @@ getbattery(char *base)
 {
 	char *path, line[513];
 	FILE *fd;
-	int descap, remcap;
+	int descap, remcap, disrate;
 
 	descap = -1;
 	remcap = -1;
+	disrate = -1;
 
 	path = smprintf("%s/info", base);
 	fd = fopen(path, "r");
@@ -138,20 +139,21 @@ getbattery(char *base)
 		if (!strncmp(line, "present", 7)) {
 			if (strstr(line, " no")) {
 				remcap = 1;
+				disrate = 0;
 				break;
 			}
 		}
-		if (!strncmp(line, "remaining capacity", 18)) {
-			if (sscanf(line+19, "%*[ ]%d%*[^\n]", &remcap))
-				break;
-		}
+		if (!strncmp(line, "remaining capacity", 18))
+			sscanf(line+19, "%*[ ]%d%*[^\n]", &remcap);
+		if (!strncmp(line, "present rate", 12))
+			sscanf(line+13, "%*[ ]%d%*[^\n]", &disrate);
 	}
 	fclose(fd);
 
 	if (remcap < 0 || descap < 0)
 		return NULL;
 
-	return smprintf("%.0f", ((float)remcap / (float)descap) * 100);
+	return smprintf("%dmA %.0f%%", disrate, ((float)remcap / (float)descap) * 100);
 }
 
 int
@@ -172,7 +174,7 @@ main(void)
 		bat = getbattery("/proc/acpi/battery/C23D");
 		tmlon = mktimes("%a %b %e %T", tzlondon);
 
-		status = smprintf("%s | %s%% | %s",
+		status = smprintf("%s | %s | %s",
 				tmlon, bat, avgs);
 		setstatus(status);
 		free(avgs);
