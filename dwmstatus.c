@@ -12,7 +12,7 @@
 
 #include <X11/Xlib.h>
 
-char *tzlondon = "Europe/London";
+char *tz = "Australia/Brisbane";
 
 static Display *dpy;
 
@@ -91,6 +91,29 @@ loadavg(void)
 }
 
 char *
+getmail()
+{
+	char *path;
+	FILE *fd;
+	
+	path = "/tmp/.mail";
+	fd = fopen(path, "r");
+	if (fd == NULL) {
+		fclose(fd);
+		return "";
+	}
+
+	char *line = malloc(8);
+	fgets(line, strlen(line)-1, fd);
+	char *c = strchr(line, '\n');
+	if (c) {
+		*c = '\0';
+	}
+	fclose(fd);
+	return line;
+}
+
+char *
 getbattery(char *base)
 {
 	char *path, line[513];
@@ -162,7 +185,8 @@ main(void)
 	char *status;
 	char *avgs;
 	char *bat;
-	char *tmlon;
+	char *mail;
+	char *tm;
 
 	if (!(dpy = XOpenDisplay(NULL))) {
 		fprintf(stderr, "dwmstatus: cannot open display.\n");
@@ -172,14 +196,22 @@ main(void)
 	for (;;sleep(1)) {
 		avgs = loadavg();
 		bat = getbattery("/proc/acpi/battery/C23D");
-		tmlon = mktimes("%a %b %e %H:%M:%S", tzlondon);
+		mail = getmail();
+		tm = mktimes("%a %b %e %H:%M:%S", tz);
 
-		status = smprintf("%s | %s | %s",
-				tmlon, bat, avgs);
+		if (strlen(mail) > 1) {
+			status = smprintf("%s | %s | %s | %s",
+					tm, mail, bat, avgs);
+			free(mail);
+		} else {
+			status = smprintf("%s | %s | %s",
+					tm, bat, avgs);
+		}
 		setstatus(status);
+		printf("%s\n", status);
 		free(avgs);
 		free(bat);
-		free(tmlon);
+		free(tm);
 		free(status);
 	}
 
