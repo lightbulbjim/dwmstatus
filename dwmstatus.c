@@ -95,15 +95,22 @@ getmail()
 {
 	char *path;
 	FILE *fd;
-	
 	path = "/tmp/.mail";
 	fd = fopen(path, "r");
 	if (fd == NULL) {
+		return "";
+	}
+
+	long size;
+	fseek(fd, 0, SEEK_END);
+	size = ftell(fd);
+	if (size == 0) {
 		fclose(fd);
 		return "";
 	}
 
 	char *line = malloc(8);
+	fseek(fd, 0, SEEK_SET);
 	fgets(line, strlen(line)-1, fd);
 	char *c = strchr(line, '\n');
 	if (c) {
@@ -199,7 +206,7 @@ main(void)
 		mail = getmail();
 		tm = mktimes("%a %b %e %H:%M:%S", tz);
 
-		if (strlen(mail) > 1) {
+		if (strlen(mail) > 0) {
 			status = smprintf("%s | %s | %s | %s",
 					tm, mail, bat, avgs);
 			free(mail);
@@ -208,7 +215,6 @@ main(void)
 					tm, bat, avgs);
 		}
 		setstatus(status);
-		printf("%s\n", status);
 		free(avgs);
 		free(bat);
 		free(tm);
