@@ -202,7 +202,7 @@ main(void)
 
 	for (;;sleep(1)) {
 		avgs = loadavg();
-		bat = getbattery("/proc/acpi/battery/C23D");
+		bat = getbattery("/proc/acpi/battery/BAT1");
 		mail = getmail();
 		tm = mktimes("%a %b %e %H:%M:%S", tz);
 
