@@ -183,7 +183,7 @@ getbattery(char *base)
 	if (remcap < 0 || descap < 0)
 		return NULL;
 
-	return smprintf("%dmA %.0f%%", disrate, ((float)remcap / (float)descap) * 100);
+	return smprintf("%dmW %.0f%%", disrate, ((float)remcap / (float)descap) * 100);
 }
 
 int
