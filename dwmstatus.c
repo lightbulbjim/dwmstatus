@@ -148,8 +148,8 @@ getbattery(char *base)
 				break;
 			}
 		}
-		if (!strncmp(line, "design capacity", 15)) {
-			if (sscanf(line+16, "%*[ ]%d%*[^\n]", &descap))
+		if (!strncmp(line, "last full capacity", 18)) {
+			if (sscanf(line+19, "%*[ ]%d%*[^\n]", &descap))
 				break;
 		}
 	}
