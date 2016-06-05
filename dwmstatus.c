@@ -12,7 +12,7 @@
 
 #include <X11/Xlib.h>
 
-char *tz = "Australia/Brisbane";
+char *tz = "Australia/Sydney";
 
 static Display *dpy;
 
