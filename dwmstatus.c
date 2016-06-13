@@ -91,36 +91,6 @@ loadavg(void)
 }
 
 char *
-getmail()
-{
-	char *path;
-	FILE *fd;
-	path = "/tmp/.mail";
-	fd = fopen(path, "r");
-	if (fd == NULL) {
-		return "";
-	}
-
-	long size;
-	fseek(fd, 0, SEEK_END);
-	size = ftell(fd);
-	if (size == 0) {
-		fclose(fd);
-		return "";
-	}
-
-	char *line = malloc(8);
-	fseek(fd, 0, SEEK_SET);
-	fgets(line, strlen(line)-1, fd);
-	char *c = strchr(line, '\n');
-	if (c) {
-		*c = '\0';
-	}
-	fclose(fd);
-	return line;
-}
-
-char *
 getbattery(char *base)
 {
 	char *path, line[513];
@@ -192,7 +162,6 @@ main(void)
 	char *status;
 	char *avgs;
 	char *bat;
-	char *mail;
 	char *tm;
 
 	if (!(dpy = XOpenDisplay(NULL))) {
@@ -203,17 +172,9 @@ main(void)
 	for (;;sleep(1)) {
 		avgs = loadavg();
 		bat = getbattery("/proc/acpi/battery/BAT1");
-		mail = getmail();
 		tm = mktimes("%a %b %e %H:%M:%S", tz);
 
-		if (strlen(mail) > 0) {
-			status = smprintf("%s | %s | %s | %s",
-					tm, mail, bat, avgs);
-			free(mail);
-		} else {
-			status = smprintf("%s | %s | %s",
-					tm, bat, avgs);
-		}
+		status = smprintf("%s | %s | %s", tm, bat, avgs);
 		setstatus(status);
 		free(avgs);
 		free(bat);
