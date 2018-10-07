@@ -162,7 +162,6 @@ getnowplaying(char *path)
     char *socket;
 	char line[513];
 	FILE *fd;
-    int playing = 0;
 
 	socket = smprintf("%s/.config/cmus/socket", getenv("HOME"));
     if (access(socket, F_OK) == -1) {
