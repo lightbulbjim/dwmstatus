@@ -156,6 +156,35 @@ getbattery(char *base)
 	return smprintf("%dmW %.0f%%", disrate, ((float)remcap / (float)descap) * 100);
 }
 
+char *
+getnowplaying(char *path)
+{
+    char *socket;
+	char line[513];
+	FILE *fd;
+    int playing = 0;
+
+	socket = smprintf("%s/.config/cmus/socket", getenv("HOME"));
+    if (access(socket, F_OK) == -1) {
+        return NULL;
+    }
+
+	fd = fopen(path, "r");
+	if (fd == NULL) {
+		return NULL;
+	}
+
+	while (!feof(fd)) {
+		if (fgets(line, sizeof(line)-1, fd) == NULL) {
+	        fclose(fd);
+			return NULL;
+        }
+	}
+	fclose(fd);
+
+	return smprintf("%.64s", line);
+}
+
 int
 main(void)
 {
@@ -163,6 +192,7 @@ main(void)
 	char *avgs;
 	char *bat;
 	char *tm;
+    char *nowplaying;
 
 	if (!(dpy = XOpenDisplay(NULL))) {
 		fprintf(stderr, "dwmstatus: cannot open display.\n");
@@ -173,12 +203,19 @@ main(void)
 		avgs = loadavg();
 		bat = getbattery("/proc/acpi/battery/BAT1");
 		tm = mktimes("%a %b %e %H:%M:%S", tz);
+        nowplaying = getnowplaying("/tmp/.nowplaying");
 
-		status = smprintf("%s | %s | %s", tm, bat, avgs);
+        if (nowplaying == NULL) {
+            status = smprintf("%s | %s | %s", tm, bat, avgs);
+        } else {
+            status = smprintf("%s | %s | %s | %s", nowplaying, tm, bat, avgs);
+        }
+
 		setstatus(status);
 		free(avgs);
 		free(bat);
 		free(tm);
+		free(nowplaying);
 		free(status);
 	}
 
