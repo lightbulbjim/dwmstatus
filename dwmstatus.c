@@ -109,8 +109,9 @@ getbattery(char *base)
 	}
 	free(path);
 	while (!feof(fd)) {
-		if (fgets(line, sizeof(line)-1, fd) == NULL)
+		if (fgets(line, sizeof(line)-1, fd) == NULL) {
 			break;
+        }
 
 		if (!strncmp(line, "present", 7)) {
 			if (strstr(line, " no")) {
@@ -119,8 +120,9 @@ getbattery(char *base)
 			}
 		}
 		if (!strncmp(line, "last full capacity", 18)) {
-			if (sscanf(line+19, "%*[ ]%d%*[^\n]", &descap))
+			if (sscanf(line+19, "%*[ ]%d%*[^\n]", &descap)) {
 				break;
+            }
 		}
 	}
 	fclose(fd);
@@ -133,8 +135,9 @@ getbattery(char *base)
 	}
 	free(path);
 	while (!feof(fd)) {
-		if (fgets(line, sizeof(line)-1, fd) == NULL)
+		if (fgets(line, sizeof(line)-1, fd) == NULL) {
 			break;
+        }
 
 		if (!strncmp(line, "present", 7)) {
 			if (strstr(line, " no")) {
@@ -143,15 +146,18 @@ getbattery(char *base)
 				break;
 			}
 		}
-		if (!strncmp(line, "remaining capacity", 18))
+		if (!strncmp(line, "remaining capacity", 18)) {
 			sscanf(line+19, "%*[ ]%d%*[^\n]", &remcap);
-		if (!strncmp(line, "present rate", 12))
+        }
+		if (!strncmp(line, "present rate", 12)) {
 			sscanf(line+13, "%*[ ]%d%*[^\n]", &disrate);
+        }
 	}
 	fclose(fd);
 
-	if (remcap < 0 || descap < 0)
+	if (remcap < 0 || descap < 0) {
 		return NULL;
+    }
 
 	return smprintf("%dmW %.0f%%", disrate, ((float)remcap / (float)descap) * 100);
 }
